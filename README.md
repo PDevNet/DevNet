@@ -7,9 +7,16 @@ Path Development Network with Finite dimensional Lie Group Representation
 
 This repository is the official implementation  of the paper entitled "Path Development Network with Finite dimensional Lie Group Representation"
 
+The path development network is built on a well studied mathematical object of Cartan development, originated from the Rough path theory. We demonstrate that:
++ The path development network can learn the optimized Lie group representation of the time series, which has many desired properties such as universality and characteristics.
++ By lifting the Euclidean path to a matrix Lie group, it can enhance the model performance by exploiting the group structure.
++ The path development can well connect with RNN type models and achieve state-of-the-art performance.   
+
+-----
+
+
 ## Environment Setup
 The code has been tested successfully using Python 3.7; thus we suggest using this version or a later version of Python. A typical process for installing the package dependencies involves creating a new Python virtual environment.
-
 To install the required packages, run the following:
 ```console
 pip install -r requirements.txt
