@@ -1,0 +1,25 @@
+# model name, i.e. dvelopment, RNN, LSTM, signature
+model: LSTM_DEV
+# paramterisation if development is used, SO,Sp
+param: SO
+# dataset MNIST, SpeechCommands, HFT, MNIST_seq
+dataset: CharTrajectories
+#drop off rate
+drop_rate : 0.3
+# cuda, cpu
+device: cuda
+gpu_id: "0"
+seed: 0
+train: True
+pretrained: False
+optimizer: Adam 
+scheduler: exponential
+gamma: 1
+weight_decay: 0.0
+lr: 0.001
+n_hidden1: 14
+n_hidden2: 14
+batch_size: 32
+epochs: 150
+patience: 50
+comment:
