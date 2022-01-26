@@ -1,0 +1,28 @@
+# model name, i.e.  LSTM,LSTM_development 
+model: LSTM_DEV
+# paramterisation if development is used SO,SE
+param: SE
+dataset: Nbody
+# cuda, cpu
+device: cuda
+gpu_id: "0"
+seed: 0
+train: True
+pretrained: False
+optimizer: Adam 
+scheduler: exponential
+gamma: 0.997
+sched_decay_factor: 5.0
+patience: 50
+weight_decay: 0.0
+lr: 0.001
+n_hid1:  16 
+n_hid2 : 32 
+dev_input: 16 
+batch_size: 128
+epochs: 200 #200
+# look back window
+k: 50
+# prediction horizon 10,30,50
+p : 30
+comment: best

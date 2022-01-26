@@ -1,0 +1,24 @@
+# model name, i.e. dvelopment, RNN, LSTM, signature
+model: LSTM
+# paramterisation if development is used, unitary, orthogonal, real_symp,signature,lstm,rnn
+param: a
+# dataset MNIST, SpeechCommands, HFT, MNIST_seq
+dataset: SpeechCommands
+# cuda, cpu
+device: cuda
+gpu_id: "3"
+seed: 0
+train: True
+pretrained: False
+optimizer: Adam 
+scheduler: exponential
+gamma: 0.997
+weight_decay: 0.0
+lr: 0.001
+n_hidden1: 135 #sig-10 dev-30
+n_hidden2: 0
+batch_size: 128
+patience: 50
+epochs: 150 #150
+mfcc: True
+comment:
