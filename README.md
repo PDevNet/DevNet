@@ -7,16 +7,9 @@ Path Development Network with Finite dimensional Lie Group Representation
 
 This repository is the official implementation  of the paper entitled "Path Development Network with Finite dimensional Lie Group Representation"
 
-The path development network is built on a well studied mathematical object of Cartan development, originated from the Rough path theory. We demonstrate that:
-+ The path development network can learn the optimized Lie group representation of the time series, which has many desired properties such as universality and characteristics.
-+ By lifting the Euclidean path to a matrix Lie group, it can enhance the model performance by exploiting the group structure.
-+ The path development can well connect with RNN type models and achieve state-of-the-art performance.   
-
------
-
-
 ## Environment Setup
 The code has been tested successfully using Python 3.7; thus we suggest using this version or a later version of Python. A typical process for installing the package dependencies involves creating a new Python virtual environment.
+
 To install the required packages, run the following:
 ```console
 pip install -r requirements.txt
@@ -28,7 +21,7 @@ source pythonpath.sh
 ```
 
 ## Example
-The soruce code of the development layer is in the [development](development) subdirectory. We currently provide the implementations for five Lie groups: Special Othorgonal, Real Symplectic, Special Euclidean, Unitary and group of orientation-preserving isometries of the hyperbolic space. 
+The soruce code of the development network is in the [development](development) subdirectory. We currently provide the implementations for five Lie groups: Special Othorgonal, Real Symplectic, Special Euclidean, Unitary and group of orientation-preserving isometries of the hyperbolic space. 
 
 The development layer can be used like standard RNN type models on the time series. For demonstrations, we provide a self contained short example:
 
@@ -76,9 +69,9 @@ python3 SpeechCommands/run_all.py
 To train a individual model with our hyperparameter using the [CharTrajectories/run.py](CharTrajectories/run.py) script. This script takes three arguments, i.e.
 
 ```console
-python3 CharTrajectories/run.py --model MODEL_NAME --param LIE_GROUP --drop_rate DROP_RATE 
+python3 CharTrajectories/run.py --model MODEL_NAME --param LIE_GROUP --drop_rate DROP_RATE --train_sr TRAIN_SAMPLE_RATE -- --test_sr TEST_SAMPLE_RATE
 ```
-where `MODEL_NAME` is either `DEV`, `signature`, `LSTM`, `LSTM_DEV`.`LIE_GROUP` is either `SO` or `Sp`. `DROP_RATE` can take value in `[0.3,0.5,0.7]`. 
+where `MODEL_NAME` is either `DEV`, `signature`, `LSTM`, `LSTM_DEV`,`EXPRNN`.`LIE_GROUP` is either `SO` or `Sp`. `DROP_RATE` can take value in `[0.3,0.5,0.7]`,`SAMPLE_RATE` can take value in `[1,2]` . 
 
 To run all experiments in the paper at once, where each model is ran over five iterations:
 ```console
@@ -86,7 +79,7 @@ python3 CharTrajectories/run_all.py
 ```
 The plots for this experiment in the paper can be found in the notebook [CharTrajectories/notebooks/plot_loss.ipynb](CharTrajectories/notebooks/plot_loss.ipynb)
 
-### Nbody Simulation
+### N-body Simulation
 To train individual model with our hyperparameter using the [Nbody/run.py](Nbody/run.py) script. This script takes three auguments, i.e.
 
 ```console
@@ -99,3 +92,19 @@ To run all experiments in the paper at once,  where each model is ran over five 
 python3 Nbody/run_all.py
 ```
 The visualization for this experiment in the paper can be found in the notebook [Nbody/notebooks/visualization.ipynb](Nbody/notebooks/visualization.ipynb)
+
+### Sequential MNIST & Permuted MNIST
+To train individual model with our hyperparameter using the [sMNIST/run.py](sMNIST/run.py) script. This script takes two auguments, i.e.
+
+```console
+python3 sMNIST/run.py --model MODEL_NAME --permuted PERMUTED
+```
+where `MODEL_NAME` is either `LSTM`, `LSTM_DEV`.`PERMUTED` is either `True` or `False`.
+
+### Sequential CIFAR10
+To train individual model with our hyperparameter using the [CIFAR10/run.py](CIFAR10/run.py) script. This script takes one model augument, i.e.
+
+```console
+python3 CIFAT10/run.py --model MODEL_NAME
+```
+where `MODEL_NAME` is either `LSTM`, `LSTM_DEV`,`EXPRNN`.

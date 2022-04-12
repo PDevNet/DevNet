@@ -1,0 +1,24 @@
+# model name, i.e. dvelopment, RNN, LSTM, signature
+model: LSTM_DEV
+# paramterisation if development is used, SO, Sp
+param: SO #Sp
+# dataset sMNIST, 
+dataset: sMNIST
+# cuda, cpu
+device: cuda
+gpu_id: "2"
+seed: 0
+train: True
+pretrained: False
+optimizer: Adam 
+scheduler: exponential
+gamma: 0.997
+patience: 50
+weight_decay: 0.0
+lr: 0.002
+n_hidden1: 120 #sig-10 dev-30
+n_hidden2: 10 # sig-72 dev-32
+batch_size: 128
+epochs: 200
+permuted: True
+comment:
