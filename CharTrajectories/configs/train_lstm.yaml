@@ -22,4 +22,6 @@ n_hidden2:
 batch_size: 32
 epochs: 150
 patience: 50
+sr_train: 1
+sr_test: 1
 comment:

@@ -74,3 +74,37 @@ for model in baseline_models:
                                                                                                        np.mean(np.array(test_accs)), np.std(np.array(test_accs))))
         logging.info('{} model on CT dataset with drop rate ={} has mean test accuracy {} with std {}'.format(model, drop_rate,
                                                                                                               np.mean(np.array(test_accs)), np.std(np.array(test_accs))))
+
+# run time-scale ditribution shift experiment
+sample_rate = [1, 2]
+for train_sr in sample_rate:
+    for test_sr in sample_rate:
+        config = load_config(
+            'CharTrajectories/configs/train_dev.yaml')
+        print('Running DEV({}) on train sample rate ={},test sample rate={} '.format(
+            'SO', 1/train_sr, 1/test_sr))
+        config.train_sr = train_sr
+        config.test_sr = test_sr
+        config.drop_rate = 0
+        test_acc = main(config=config)
+        test_accs.append(test_acc)
+    print('DEV({}) on CT dataset with train sample rate ={},test sample rate = {} has mean test accuracy {} with std {}'.format('SO', 1/train_sr, 1/test_sr,
+                                                                                                                                np.mean(np.array(test_accs)), np.std(np.array(test_accs))))
+    logging.info('DEV({}) on CT dataset with train sample rate ={},test sample rate = {} has mean test accuracy {} with std {}'.format('SO', 1/train_sr, 1/test_sr,
+                                                                                                                                       np.mean(np.array(test_accs)), np.std(np.array(test_accs))))
+
+for train_sr in sample_rate:
+    for test_sr in sample_rate:
+        config = load_config(
+            'CharTrajectories/configs/train_lstm_dev.yaml')
+        print('Running LSTM_DEV({}) on train sample rate ={},test sample rate={} '.format(
+            'SO', 1/train_sr, 1/test_sr))
+        config.train_sr = train_sr
+        config.test_sr = test_sr
+        config.drop_rate = 0
+        test_acc = main(config=config)
+        test_accs.append(test_acc)
+    print('LSTM_DEV({}) on CT dataset with train sample rate ={},test sample rate = {} has mean test accuracy {} with std {}'.format('SO', 1/train_sr, 1/test_sr,
+                                                                                                                                     np.mean(np.array(test_accs)), np.std(np.array(test_accs))))
+    logging.info('LSTM_DEV({}) on CT dataset with train sample rate ={},test sample rate = {} has mean test accuracy {} with std {}'.format('SO', 1/train_sr, 1/test_sr,
+                                                                                                                                            np.mean(np.array(test_accs)), np.std(np.array(test_accs))))
