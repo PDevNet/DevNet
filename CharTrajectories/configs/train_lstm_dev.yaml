@@ -1,7 +1,7 @@
 # model name, i.e. dvelopment, RNN, LSTM, signature
 model: LSTM_DEV
 # paramterisation if development is used, SO,Sp
-param: SO
+param: Sp
 # dataset MNIST, SpeechCommands, HFT, MNIST_seq
 dataset: CharTrajectories
 #drop off rate
@@ -22,4 +22,6 @@ n_hidden2: 14
 batch_size: 32
 epochs: 150
 patience: 50
+sr_train: 1
+sr_test: 1
 comment:

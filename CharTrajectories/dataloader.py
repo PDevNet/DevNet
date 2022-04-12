@@ -25,16 +25,19 @@ def get_dataset(
     """
     training_set = CharTrajectories(
         partition="train",
-        dropped_rate=config.drop_rate
+        dropped_rate=config.drop_rate,
+        sr=config.sr_train
 
     )
     validation_set = CharTrajectories(
         partition="val",
-        dropped_rate=config.drop_rate
+        dropped_rate=config.drop_rate,
+        sr=config.sr_train
     )
     test_set = CharTrajectories(
         partition="test",
-        dropped_rate=config.drop_rate
+        dropped_rate=config.drop_rate,
+        sr=config.sr_test
     )
 
     training_loader = DataLoader(
@@ -69,8 +72,13 @@ class CharTrajectories(torch.utils.data.TensorDataset):
     ):
         #self.sampling_rate = kwargs["sr"]
         self.dropped_rate = kwargs["dropped_rate"]
+        self.sampling_rate = kwargs["sr"]
 
         self.root = pathlib.Path("./CharTrajectories/data")
+        if os.path.exists(self.root):
+            pass
+        else:
+            os.mkdir(self.root)
         data_loc = self.root / "UEA" / "processed_data"
 
         if self.dropped_rate != 0:
@@ -99,7 +107,7 @@ class CharTrajectories(torch.utils.data.TensorDataset):
 
         X, y = self.load_data(data_loc, partition)
 
-       # X, y = subsample(X, y, self.sampling_rate)
+        X, y = subsample(X, y, self.sampling_rate)
 
         super(CharTrajectories, self).__init__(X, y)
 

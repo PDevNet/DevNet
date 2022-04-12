@@ -1,23 +1,28 @@
-
+from CIFAR10.utils import count_parameters
 import torch
 import os
+
 import numpy as np
 import copy
+#from src.runner.test import test
 import datetime
 import ml_collections
 import yaml
-from CharTrajectories.models import get_model
-from CharTrajectories.utils import EarlyStopping, model_path
+from CIFAR10.models import get_model
+from CIFAR10.dataloader import get_dataset
+from CIFAR10.utils import model_path, EarlyStopping
 import argparse
+import sys
 
 
-def train_CT(
-    model, dataloader, config, test_loader,
+def train_CIFAR10(
+    model, dataloader, config, test_loader
 ):
-
     # Training parameters
     epochs = config.epochs
     device = config.device
+    # clip = config.clip
+
     # Save best performing weights
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
@@ -34,10 +39,8 @@ def train_CT(
         optimizer,
         gamma=config.gamma)
     criterion = torch.nn.CrossEntropyLoss()
-    # wandb.watch(model, criterion, log="all", log_freq=1)
     counter = 0
-    val_acc = []
-    val_loss = []
+    # wandb.watch(model, criterion, log="all", log_freq=1)
     for epoch in range(epochs):
         print("Epoch {}/{}".format(epoch + 1, epochs))
         print("-" * 30)
@@ -45,6 +48,7 @@ def train_CT(
         for param_group in optimizer.param_groups:
             print("Learning Rate: {}".format(param_group["lr"]))
         print("-" * 30)
+
         # Each epoch consist of training and validation
         for phase in ["train", "validation"]:
             if phase == "train":
@@ -58,6 +62,13 @@ def train_CT(
             total = 0
             # iterate over data
             for inputs, labels in dataloader[phase]:
+                _, in_channels, x, y = inputs.shape
+                inputs = inputs.view(-1, in_channels, x * y)
+                if config.length != None:
+                    inputs = inputs[:, :, :config.length]
+                else:
+                    pass
+
                 inputs = inputs.permute(0, 2, 1).to(device)
                 labels = labels.to(device)
 
@@ -86,9 +97,6 @@ def train_CT(
             print("{} Loss: {:.4f} Acc: {:.4f}".format(
                 phase, epoch_loss, epoch_acc))
             print(datetime.datetime.now())
-            if phase == "validation":
-                val_loss.append(epoch_loss)
-                val_acc.append(epoch_acc)
 
             # If better validation accuracy, replace best weights and compute the test performance
             if phase == "validation" and epoch_acc >= best_acc:
@@ -102,19 +110,16 @@ def train_CT(
 
                     best_model_wts = copy.deepcopy(model.state_dict())
 
-                    # Log best results so far and the weights of the model.
-
                     # Clean CUDA Memory
                     del inputs, outputs, labels
                     torch.cuda.empty_cache()
                     # Perform test and log results
 
-                    test_acc = test_CT(model, test_loader, config)
+                    test_acc = best_acc
 
             if phase == "validation":
-                print('validation and schedulaer')
                 torch.optim.lr_scheduler.ReduceLROnPlateau(
-                    optimizer, 'max').step(metrics=epoch_acc)
+                    optimizer, 'min').step(metrics=best_loss)
                 EarlyStopping(patience=30)(val_acc=best_acc)
         if counter > config.patience:
             break
@@ -129,14 +134,14 @@ def train_CT(
     # Load best model weights
     model.load_state_dict(best_model_wts)
     torch.save(model.state_dict(), config.path)
-    # Save the model in the exchangeable ONNX format
-    torch.save(model.state_dict(), config.path)
+
     # Return model and histories
-    return model, val_loss, val_acc
+    return model
 
 
-def test_CT(model, test_loader, config):
+def test_CIFAR10(model, test_loader, config):
     # send model to device
+
     device = config.device
 
     model.eval()
@@ -149,6 +154,8 @@ def test_CT(model, test_loader, config):
     with torch.no_grad():
         # Iterate through data
         for inputs, labels in test_loader:
+            _, in_channels, x, y = inputs.shape
+            inputs = inputs.view(-1, in_channels, x * y)
 
             inputs = inputs.permute(0, 2, 1).to(device)
             labels = labels.to(device)
@@ -169,16 +176,7 @@ def test_CT(model, test_loader, config):
     return test_acc
 
 
-def main(**kwargs):
-    if "config" in kwargs:
-        config = kwargs["config"]
-    else:
-        with open('CharTrajectories/sweep.yaml') as file:
-            config = ml_collections.ConfigDict(yaml.safe_load(file))
-    if "return_loss" in kwargs:
-        return_loss = kwargs['return_loss']
-    else:
-        return_loss = False
+def main(config):
     # print(config)
     os.environ["CUDA_VISIBLE_DEVICES"] = config.gpu_id
     print(os.environ["CUDA_VISIBLE_DEVICES"])
@@ -186,19 +184,27 @@ def main(**kwargs):
     # torch.manual_seed(config.seed)
     # np.random.seed(config.seed)
 
-    print(config)
+    # initialize weight and bias
+    # Place here your API key.
+    os.environ["WANDB_API_KEY"] = "0a2ae01d4ea2b07b7fca1f71e45562ab1a123c80"
+    if not config.train:
+        os.environ["WANDB_MODE"] = "dryrun"
     if (config.device ==
             "cuda" and torch.cuda.is_available()):
         config.update({"device": "cuda:0"}, allow_val_change=True)
     else:
         config.update({"device": "cpu"}, allow_val_change=True)
     torch.cuda.set_per_process_memory_fraction(0.5, 0)
-    from CharTrajectories.models import get_model
+    from CIFAR10.models import get_model
     model = get_model(config)
 
     # Define transforms and create dataloaders
-    from CharTrajectories.dataloader import get_dataset
+    from CIFAR10.dataloader import get_dataset
     dataloaders, test_loader = get_dataset(config, num_workers=4)
+
+    # WandB – wandb.watch() automatically fetches all layer dimensions, gradients, model parameters and logs them automatically to your dashboard.
+    # Using log="all" log histograms of parameter values in addition to gradients
+    # wandb.watch(model, log="all", log_freq=200) # -> There was a wandb bug that made runs in Sweeps crash
 
     # Create model directory and instantiate config.path
     model_path(config)
@@ -209,56 +215,32 @@ def main(**kwargs):
 
     # Train the model
     if config.train:
-
+        # Print arguments (Sanity check)
+        print(config)
         # Train the model
         import datetime
 
         print(datetime.datetime.now())
-        _, val_loss, val_acc = train_CT(
-            model, dataloaders, config, test_loader)
+        train_CIFAR10(model, dataloaders, config, test_loader)
 
     # Select test function
-    test_acc = test_CT(model, test_loader, config)
-
-    if return_loss:
-        return val_loss, val_acc
-    else:
-        return test_acc
+    test_acc = test_CIFAR10(model, test_loader, config)
+    return test_acc
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='LSTM_DEV',
-                        help='choose from LSTM, DEV, LSTM_DEV, signature,EXPRNN')
-
-    parser.add_argument('--param', type=str, default='SO',
-                        help='choose from SO,Sp')
-    parser.add_argument('--drop_rate', type=float, default=0.3,
-                        help='drop rate choosen from 0.3,0.5,0.7')
-    parser.add_argument('--train_sr', type=float, default=1,
-                        help='train sampling rate from 1,2')
-    parser.add_argument('--test_sr', type=float, default=1,
-                        help='train sampling rate from 1,2')
-
+                        help='choose from LSTM, LSTM_DEV,EXPRNN')
     args = parser.parse_args()
     if args.model == 'LSTM_DEV':
-        with open('CharTrajectories/configs/train_lstm_dev.yaml') as file:
+        with open('CIFAR10/configs/train_lstm_dev.yaml') as file:
             config = ml_collections.ConfigDict(yaml.safe_load(file))
-            config.param = args.param
     elif args.model == 'LSTM':
-        with open('CharTrajectories/configs/train_lstm.yaml') as file:
-            config = ml_collections.ConfigDict(yaml.safe_load(file))
-    elif args.model == 'DEV':
-        with open('CharTrajectories/configs/train_dev.yaml') as file:
-            config = ml_collections.ConfigDict(yaml.safe_load(file))
-            config.param = args.param
-    elif args.model == 'signature':
-        with open('CharTrajectories/configs/train_sig.yaml') as file:
+        with open('CIFAR10/configs/train_lstm.yaml') as file:
             config = ml_collections.ConfigDict(yaml.safe_load(file))
     elif args.model == 'EXPRNN':
-        with open('CharTrajectories/configs/train_exprnn.yaml') as file:
+        with open('CIFAR10/configs/train_exprnn.yaml') as file:
             config = ml_collections.ConfigDict(yaml.safe_load(file))
-    config.drop_rate = args.drop_rate
-    config.train_sr = args.train_sr
-    config.test_sr = args.test_sr
-    main(config=config)
+
+    main(config)
