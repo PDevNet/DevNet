@@ -3,7 +3,7 @@ Adapted from https://github.com/Lezcano/expRNN/blob/master/expm32.py
 """
 import torch
 import math
-
+from development.so import so
 degs = [1, 2, 4, 8, 12, 18]
 
 thetas_dict = {
@@ -329,7 +329,9 @@ class expm_taylor_class(torch.autograd.Function):
         if (A == 0).all():
             return G
         else:
-            return differential(A.transpose(-2, -1), G, expm_taylor)
+            diff = differential(A.transpose(-2, -1), G, expm_taylor)
+            print('diff test:', so(A.shape[-1]).in_lie_algebra(diff))
+            return diff
 
 
 def expm(X):
@@ -346,3 +348,7 @@ def rescaled_matrix_exp(f, A):
     A_1 = torch.pow(
         0.5, s.float()).unsqueeze_(-1).unsqueeze_(-1).expand_as(A) * A
     return matrix_power_two_batch(f(A_1), s)
+
+
+def expm_1(X):
+    return torch.matrix_exp(X)
