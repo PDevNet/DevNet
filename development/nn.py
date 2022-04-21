@@ -1,9 +1,11 @@
+import math
 from development.so import so_uniform_init_
 from development.expm import expm, rescaled_matrix_exp
 import torch
 import torch.nn as nn
 import numpy as np
 from development.sp import sp
+from development.so import so
 import sys
 sys.argv = ['']
 del sys
@@ -31,7 +33,8 @@ class projection(nn.Module):
         # self.size = hidden_size
         self.param_map = param(hidden_size)
         self.param = param
-        self.A = nn.Parameter(A)
+        self.A = nn.Parameter(self.param_map(A))
+        print(self.param_map.in_lie_algebra(self.A))
         self.triv = triv
         self.reset_parameters()
 
@@ -39,8 +42,11 @@ class projection(nn.Module):
         # nn.init.uniform(self.A)
         if self.param.__name__ in ['orthogonal', 'se']:
             so_uniform_init_(self.A)
+            self.param_map(self.A)
+
         else:
             nn.init.kaiming_uniform_(self.A)
+            self.param_map(self.A)
 
     def forward(self, dX: torch.tensor) -> torch.tensor:
         """
@@ -50,8 +56,13 @@ class projection(nn.Module):
         Returns:
             torch.tensor: (N,channels,hidden_size,hidden_size)
         """
+        # print(self.param_map.in_lie_algebra(self.A))
+        print('forward test :', self.param_map.in_lie_algebra(
+            self.param_map(self.A)))
+
         A = self.param_map(self.A).permute(1, 2, -1, 0)  # C,m,m,in
 
+        #A = self.A.permute(1, 2, -1, 0)
         AX = A.matmul(dX.T).permute(-1, 0, 1, 2)  # ->C,m,m,N->N,C,m,m
 
         # X -> A := M(X)  expm(M(X))
@@ -63,7 +74,7 @@ class development_layer(nn.Module):
 
     def __init__(self, input_size: int, hidden_size: int, channels: int = 1, param=sp,
                  triv=expm, return_sequence: bool = False, complexification: bool = False,
-                 include_inital: bool = False):
+                 include_inital: bool = False, time_batch=1):
         """This the main development layer class, which map the input Euclidean path to the matrix Lie group valued
             path.
 
@@ -93,6 +104,7 @@ class development_layer(nn.Module):
         self.projection = projection(
             input_size, hidden_size, channels=channels, param=param, triv=triv, complex=self.complex)
         self.include_inital = include_inital
+        self.truncation = time_batch
 
     def forward(self, input: torch.tensor) -> torch.tensor:
         """forward 
@@ -111,17 +123,27 @@ class development_layer(nn.Module):
             input = torch.cat(
                 [torch.zeros((N, 1, C)).to(input.device), input], dim=1)
         dX = input[:, 1:] - input[:, :-1]  # N,T-1,input_size
-        dX = dX.reshape(-1, dX.shape[-1])
-        M_dX = self.projection(dX).reshape(
-            N, -1, self.channels, self.hidden_size, self.hidden_size)
-        I = torch.eye(self.hidden_size, device=input.device, dtype=input.dtype).reshape(
-            1, 1, 1, self.hidden_size, self.hidden_size).repeat(N, 1, self.channels, 1, 1)
-        M_dX = torch.cat([I, M_dX], 1)
-
+        time_len = math.ceil(T/self.truncation)
+        out = torch.eye(self.hidden_size, device=input.device, dtype=input.dtype).reshape(
+            1, 1, self.hidden_size, self.hidden_size).repeat(N, self.channels, 1, 1)
         if self.return_sequence:
-            return self.prod(M_dX)  # N,T,C,m,m
+            out = []
+            for i in range(0, T, time_len):
+
+                dX1 = dX[:, i:i+time_len].reshape(-1, dX.shape[-1])
+                M_dX = self.projection(dX1).reshape(
+                    N, -1, self.channels, self.hidden_size, self.hidden_size)
+                out = out.append(self.prod(M_dX))
+            return torch.cat(out, 1)
         else:
-            return self.dyadic_prod(M_dX)  # N,C,m,m
+            for i in range(0, T, time_len):
+
+                dX1 = dX[:, i:i+time_len].reshape(-1, dX.shape[-1])
+                M_dX = self.projection(dX1).reshape(
+                    N, -1, self.channels, self.hidden_size, self.hidden_size)
+                out = torch.einsum('bcij,bcjk->bcik', out,
+                                   self.dyadic_prod(M_dX))
+            return out
 
     @staticmethod
     def dyadic_prod(X: torch.tensor) -> torch.tensor:
