@@ -45,7 +45,7 @@ out = dev(x)
 ```  
 ## Reproducing experiments
 
-The code for reproducing the experiments of the paper can be found in the subdirectories: [SpeechCommands](SpeechCommands), [CharTrajectories](CharTrajecotries) and [Nbody](Nbody). Each experiment contains a simple run script to generate data, train and evaluate models. For the first time user, it will takes some time to generate the dataset automatically. See the following instructions for each specific task.
+The code for reproducing the experiments of the paper can be found in the subdirectories: [SpeechCommands](SpeechCommands), [CharTrajectories](CharTrajecotries),[sMNIST](sMNIST),[CIFAR10](CIFAR10),[BM_2Sphere](BM_2Sphere) and [Nbody](Nbody). Each experiment contains a simple run script to generate data, train and evaluate models. For the first time user, it will takes some time to generate the dataset automatically. See the following instructions for each specific task.
 
 ### Speech Commands
 To train individual model with our hyperparameter using the [SpeechCommands/run.py](SpeechCommands/run.py) script. This script takes one argument to specify the model, i.e.
