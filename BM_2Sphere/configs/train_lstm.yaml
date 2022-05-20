@@ -1,0 +1,28 @@
+# model name, i.e. dvelopment, RNN, LSTM, signature
+model: LSTM
+# paramterisation if development is used, unitary, orthogonal, real_symp,signature,lstm,rnn
+param: a
+# dataset MNIST, SpeechCommands, HFT, MNIST_seq
+dataset: BM_2Sphere
+#drop off rate
+
+drop_rate : 0
+# cuda, cpu
+device: cuda
+gpu_id: "0"
+
+seed: 0
+train: True
+pretrained: False
+optimizer: Adam
+
+gamma: 0.998
+weight_decay: 0.0
+lr: 0.003
+n_hidden1: 32
+n_hidden2: 64
+batch_size: 64
+epochs: 300
+patience: 100
+
+comment:
