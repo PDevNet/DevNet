@@ -5,7 +5,7 @@ param: s
 dataset: SpeechCommands
 # cuda, cpu
 device: cuda
-gpu_id: "4"
+gpu_id: "0"
 seed: 0
 train: True
 pretrained: False
