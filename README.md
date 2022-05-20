@@ -5,21 +5,15 @@ Path Development Network with Finite dimensional Lie Group Representation
 <img align="middle" src="./images/Development_flowchart.png" width="666" />
 </p>
 
-This repository is the official implementation  of the paper entitled "Path Development Network with Finite dimensional Lie Group Representation"
+This repository is the official implementation  of the paper entitled "Path Development Network with Finite dimensional Lie Group"
 
 ## Environment Setup
 The code has been tested successfully using Python 3.7; thus we suggest using this version or a later version of Python. A typical process for installing the package dependencies involves creating a new Python virtual environment.
 
 To install the required packages, run the following:
 ```console
-pip install -r requirements.txt
+pip install .
 ```
-
-Finally, to prepare the environment for running the code, run the following:
-```console
-source pythonpath.sh
-```
-
 ## Example
 The soruce code of the development network is in the [development](development) subdirectory. We currently provide the implementations for five Lie groups: Special Othorgonal, Real Symplectic, Special Euclidean, Unitary and group of orientation-preserving isometries of the hyperbolic space. 
 
@@ -71,27 +65,13 @@ To train a individual model with our hyperparameter using the [CharTrajectories/
 ```console
 python3 CharTrajectories/run.py --model MODEL_NAME --param LIE_GROUP --drop_rate DROP_RATE --train_sr TRAIN_SAMPLE_RATE -- --test_sr TEST_SAMPLE_RATE
 ```
-where `MODEL_NAME` is either `DEV`, `signature`, `LSTM`, `LSTM_DEV`,`EXPRNN`.`LIE_GROUP` is either `SO` or `Sp`. `DROP_RATE` can take value in `[0.3,0.5,0.7]`,`SAMPLE_RATE` can take value in `[1,2]` . 
+where `MODEL_NAME` is either `DEV`, `signature`, `LSTM`, `LSTM_DEV`,`EXPRNN`.`LIE_GROUP` is either `SO` or `Sp`. `DROP_RATE` can take value in `[0.3,0.5,0.7]`,`SAMPLE_RATE` can take value in `[1,0.5]` . 
 
 To run all experiments in the paper at once, where each model is ran over five iterations:
 ```console
 python3 CharTrajectories/run_all.py
 ```
 The plots for this experiment in the paper can be found in the notebook [CharTrajectories/notebooks/plot_loss.ipynb](CharTrajectories/notebooks/plot_loss.ipynb)
-
-### N-body Simulation
-To train individual model with our hyperparameter using the [Nbody/run.py](Nbody/run.py) script. This script takes three auguments, i.e.
-
-```console
-python3 Nbody/run.py --model MODEL_NAME --param LIE_GROUP --p PREDICTION_STEPs 
-```
-where `MODEL_NAME` is either `DEV`, `signature`, `LSTM`, `LSTM_DEV`.`LIE_GROUP` is either `SO` or `SE`. `PREDICTION_STEPs` can take value in `[10,30,50]`. 
-
-To run all experiments in the paper at once,  where each model is ran over five iterations:
-```console
-python3 Nbody/run_all.py
-```
-The visualization for this experiment in the paper can be found in the notebook [Nbody/notebooks/visualization.ipynb](Nbody/notebooks/visualization.ipynb)
 
 ### Sequential MNIST & Permuted MNIST
 To train individual model with our hyperparameter using the [sMNIST/run.py](sMNIST/run.py) script. This script takes two auguments, i.e.
@@ -108,3 +88,27 @@ To train individual model with our hyperparameter using the [CIFAR10/run.py](CIF
 python3 CIFAT10/run.py --model MODEL_NAME
 ```
 where `MODEL_NAME` is either `LSTM`, `LSTM_DEV`,`EXPRNN`.
+
+### Brownian Motion on 2Sphere
+To train individual model with our hyperparameter using the [BM_2Sphere/run.py](BM_2Sphere/run.py) script. This script takes three auguments, i.e.
+
+```console
+python3 BM_2Sphere/run.py --model MODEL_NAME  
+```
+where `MODEL_NAME` is either `LSTM_DEV`, `EXPRNN`, `LSTM`
+
+The visualization for this experiment in the paper can be found in the notebook [BM_2Sphere/notebooks/2sphere.ipynb](BM_2Sphere/notebooks/2sphere.ipynb)
+### N-body Simulation
+To train individual model with our hyperparameter using the [Nbody/run.py](Nbody/run.py) script. This script takes three auguments, i.e.
+
+```console
+python3 Nbody/run.py --model MODEL_NAME --param LIE_GROUP --p PREDICTION_STEPs 
+```
+where `MODEL_NAME` is either `LSTM`, `LSTM_DEV`.`LIE_GROUP` is either `SO` or `SE`. `PREDICTION_STEPs` can take value in `[10,30,50]`. 
+
+To run all experiments in the paper at once,  where each model is ran over five iterations:
+```console
+python3 Nbody/run_all.py
+```
+The visualization for this experiment in the paper can be found in the notebook [Nbody/notebooks/visualization.ipynb](Nbody/notebooks/visualization.ipynb)
+
