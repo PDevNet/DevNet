@@ -6,7 +6,6 @@ import copy
 import datetime
 import ml_collections
 import yaml
-from CharTrajectories.models import get_model
 from CharTrajectories.utils import EarlyStopping, model_path
 import argparse
 
@@ -236,9 +235,9 @@ if __name__ == '__main__':
     parser.add_argument('--drop_rate', type=float, default=0.3,
                         help='drop rate choosen from 0.3,0.5,0.7')
     parser.add_argument('--train_sr', type=float, default=1,
-                        help='train sampling rate from 1,2')
+                        help='train sampling rate from 1,0.5')
     parser.add_argument('--test_sr', type=float, default=1,
-                        help='train sampling rate from 1,2')
+                        help='train sampling rate from 1,0.5')
 
     args = parser.parse_args()
     if args.model == 'LSTM_DEV':
@@ -258,6 +257,7 @@ if __name__ == '__main__':
     elif args.model == 'EXPRNN':
         with open('CharTrajectories/configs/train_exprnn.yaml') as file:
             config = ml_collections.ConfigDict(yaml.safe_load(file))
+    print(args)
     config.drop_rate = args.drop_rate
     config.train_sr = args.train_sr
     config.test_sr = args.test_sr

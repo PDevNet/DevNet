@@ -64,6 +64,30 @@ def get_dataset(
     return dataloaders, test_loader
 
 
+def _subsample(X, hz=1, uniform=True):
+    """ Subsample X non-uniformly at hz frequency, append timestamps """
+    L = X.shape[1]
+    # create subsampler
+    if uniform:
+        removed_points = torch.arange(int(L*hz)) // hz
+        removed_points = removed_points.to(int)
+        def time_gen(): return removed_points
+    else:
+        generator = torch.Generator().manual_seed(56789)
+        def time_gen(): return torch.randperm(
+            L, generator=generator)[:int(L*hz)].sort().values
+
+    X_ = []
+    T_ = []
+    for Xi in X:
+        times = time_gen()
+        Xi_ = Xi[times]
+        times_ = times.to(torch.float32).unsqueeze(-1)
+        X_.append(Xi_)
+        T_.append(times_)
+    return torch.stack(X_, dim=0), torch.stack(T_, dim=0)
+
+
 class CharTrajectories(torch.utils.data.TensorDataset):
     def __init__(
         self,
@@ -106,10 +130,11 @@ class CharTrajectories(torch.utils.data.TensorDataset):
             )
 
         X, y = self.load_data(data_loc, partition)
+        #print('oritinal ts shape', X.shape)
+        X, _ = _subsample(X.permute(0, 2, 1), self.sampling_rate)
+        #print('time series shape:', X.shape)
 
-        X, y = subsample(X, y, self.sampling_rate)
-
-        super(CharTrajectories, self).__init__(X, y)
+        super(CharTrajectories, self).__init__(X.permute(0, 2, 1), y)
 
     def download(self):
         root = self.root
