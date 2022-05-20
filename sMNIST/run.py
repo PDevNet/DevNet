@@ -7,8 +7,6 @@ import copy
 import datetime
 import ml_collections
 import yaml
-from sMNIST.models import get_model
-from sMNIST.dataloader import get_dataset
 from sMNIST.utils import model_path, EarlyStopping
 import argparse
 
@@ -202,6 +200,7 @@ def main(config):
     print('num_param;', num_param)
 
     # Define transforms and create dataloaders
+    from sMNIST.dataloader import get_dataset
     dataloaders, test_loader = get_dataset(config, num_workers=4)
 
     # WandB – wandb.watch() automatically fetches all layer dimensions, gradients, model parameters and logs them automatically to your dashboard.
@@ -245,6 +244,6 @@ if __name__ == '__main__':
 
     if args.permuted == 'True':
         config.permuted = True
-    elif args.permute == 'False':
+    elif args.permuted == 'False':
         config.permuted = False
     main(config)

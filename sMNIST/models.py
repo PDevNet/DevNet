@@ -202,7 +202,7 @@ def get_model(config):
     in_channels = 1
     print(config.model)
 
-    if config.model == 'development' or config.model == 'LSTM_development':
+    if config.model == 'DEV' or config.model == 'LSTM_DEV':
         model_name = "%s_%s_%s" % (config.dataset, config.model, config.param)
     elif config.model:
         model_name = "%s_%s" % (config.dataset, config.model)

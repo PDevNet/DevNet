@@ -6,7 +6,7 @@ param: a
 dataset: sMNIST
 # cuda, cpu
 device: cuda
-gpu_id: "2"
+gpu_id: "0"
 seed: 0
 train: True
 pretrained: False
