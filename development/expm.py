@@ -330,7 +330,7 @@ class expm_taylor_class(torch.autograd.Function):
             return G
         else:
             diff = differential(A.transpose(-2, -1), G, expm_taylor)
-            print('diff test:', so(A.shape[-1]).in_lie_algebra(diff))
+            #print('diff test:', so(A.shape[-1]).in_lie_algebra(diff))
             return diff
 
 
