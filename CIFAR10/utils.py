@@ -163,3 +163,14 @@ class EarlyStopping():
             if self.counter >= self.patience:
                 print('INFO: Early stopping')
                 self.early_stop = True
+
+
+def count_parameters(model: torch.nn.Module) -> int:
+    """
+
+    Args:
+        model (torch.nn.Module): input models
+    Returns:
+        int: number of trainable parameters in the model
+    """
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)

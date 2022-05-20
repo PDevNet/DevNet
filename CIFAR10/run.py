@@ -1,4 +1,3 @@
-from CIFAR10.utils import count_parameters
 import torch
 import os
 
@@ -8,8 +7,6 @@ import copy
 import datetime
 import ml_collections
 import yaml
-from CIFAR10.models import get_model
-from CIFAR10.dataloader import get_dataset
 from CIFAR10.utils import model_path, EarlyStopping
 import argparse
 import sys
@@ -186,9 +183,6 @@ def main(config):
 
     # initialize weight and bias
     # Place here your API key.
-    os.environ["WANDB_API_KEY"] = "0a2ae01d4ea2b07b7fca1f71e45562ab1a123c80"
-    if not config.train:
-        os.environ["WANDB_MODE"] = "dryrun"
     if (config.device ==
             "cuda" and torch.cuda.is_available()):
         config.update({"device": "cuda:0"}, allow_val_change=True)
@@ -201,10 +195,6 @@ def main(config):
     # Define transforms and create dataloaders
     from CIFAR10.dataloader import get_dataset
     dataloaders, test_loader = get_dataset(config, num_workers=4)
-
-    # WandB – wandb.watch() automatically fetches all layer dimensions, gradients, model parameters and logs them automatically to your dashboard.
-    # Using log="all" log histograms of parameter values in addition to gradients
-    # wandb.watch(model, log="all", log_freq=200) # -> There was a wandb bug that made runs in Sweeps crash
 
     # Create model directory and instantiate config.path
     model_path(config)
@@ -243,4 +233,4 @@ if __name__ == '__main__':
         with open('CIFAR10/configs/train_exprnn.yaml') as file:
             config = ml_collections.ConfigDict(yaml.safe_load(file))
 
-    main(config)
+    main(config=config)

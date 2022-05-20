@@ -6,7 +6,7 @@ param: a
 dataset: CIFAR10
 # cuda, cpu
 device: cuda
-gpu_id: "3"
+gpu_id: "0"
 seed: 0
 train: True
 pretrained: False
