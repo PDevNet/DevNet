@@ -10,7 +10,7 @@ setup(
     python_requires='>=3.7',
     install_requires=['matplotlib == 3.3.2',
                       'ml_collections == 0.1.0',
-                      'numpy == 1.19.3',
+                      'numpy == 1.21.0',
                       'PyYAML == 6.0',
                       'scikit_learn == 1.0.2',
                       'scipy == 1.5.2',
