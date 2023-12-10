@@ -16,8 +16,8 @@ class hyperbolic(nn.Module):
 
     @staticmethod
     def frame(X: torch.tensor) -> torch.tensor:
-        """ parametrise lie algebra matrices preserving orientation of the hyperbolic symmetris
-             from the gneal linear matrix X
+        """parametrise lie algebra matrices preserving orientation of the hyperbolic symmetris
+             from the general linear matrix X
 
         Args:
             X (torch.tensor): (...,2n,2n)
@@ -26,13 +26,12 @@ class hyperbolic(nn.Module):
             torch.tensor: (...,2n,2n)
         """
         N, C, m, m = X.shape
-        X = torch.cat([torch.zeros(N, C, m-1, m-1),
-                      X[..., :-1, -1].unsqueeze(-1)], dim=-1)
-        X = torch.cat([X, torch.zeros(N, C, 1, m)], dim=-2)
+        g = torch.eye(m)
+        g[-1, -1] = -1
+        A = X - g @ X.transpose(-2, -1) @ g
 
-        X = X + X.transpose(-2, -1)
+        return A
 
-        return X
 
     def forward(self, X: torch.tensor) -> torch.tensor:
         if len(X.size()) < 2:
