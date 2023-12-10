@@ -18,14 +18,14 @@ class so(nn.Module):
 
     @staticmethod
     def frame(X: torch.tensor) -> torch.tensor:
-        """ parametrise real symplectic lie algebra from the gneal linear matrix X
+        """ parametrise orthogonal lie algebra from the general linear matrix X
 
         Args:
-            X (torch.tensor): (...,2n,2n)
-            J (torch.tensor): (2n,2n), symplectic operator [[0,I],[-I,0]]
+            X (torch.tensor): (...,n,n)
+        
 
         Returns:
-            torch.tensor: (...,2n,2n)
+            torch.tensor: (...,n,n)
         """
 
         X = X.tril(-1)
